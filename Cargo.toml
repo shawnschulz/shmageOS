@@ -1,0 +1,8 @@
+[package]
+name = "shos"
+version = "0.1.0"
+authors = ["Shawn Schulz <shawnschulz@gmail.com>"]
+edition = "2024"
+
+[dependencies]
+bootloader = "0.9"
