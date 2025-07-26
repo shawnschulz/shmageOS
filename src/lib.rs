@@ -3,10 +3,48 @@
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 #![no_std]
+// Allows us to use c x86_interrupt calling convention in rust even though
+// the ABI is unstable
+#![feature(abi_x86_interrupt)]
 
 use core::panic::PanicInfo;
 pub mod serial;
 pub mod vga_buffer;
+pub mod interrupts;
+
+// Handles everything immediately after booting,
+// eventually may want to then have this load or link against
+// a threaded daemon that handles more complex launch and service
+// management logic
+pub fn init() {
+    interrupts::initialize_idt();
+}
+
+
+pub fn shfetch() {
+    use core::fmt::Write;
+    println!("Welcome to shmageOS!");
+    println!("           _              user@wip");
+    println!("        ___               ------------------------------");
+    println!("      l..l.l              OS: shmageOS 0.0.1 x86_64");
+    println!("    __________            Host: QEMU");
+    println!("  ______________          Kernel: 0.0.1");
+    println!("_____________________     Cluster Connections:");
+    println!("ooooooooooooooooooooooo   Network:");
+    println!("   |  =    =  |           CPU:");
+    println!("   j  O    O  j           GPU:");
+    println!(r"   \          /           Mem:");
+    println!("                          ------------------------------");
+    println!("\"Writing a computer program is simple,");
+    println!("but writing a simple computer program");
+    println!("is the hardest thing there is!\" - Shawn");
+    println!("_______________________");
+    write!(vga_buffer::WRITER.lock(), "Currently running ver {}", 1.0/3.0).unwrap();
+    println!("");
+    println!("_______________________");
+    println!("");
+    serial_println!("Hello from the serial device!");
+}
 
 
 pub trait Testable {
@@ -43,6 +81,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 #[cfg(test)]
 #[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
+    init();
     test_main();
     loop {}
 }
