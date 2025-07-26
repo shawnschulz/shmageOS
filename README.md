@@ -9,10 +9,13 @@ Idea is to have a kernel centered around parallel programming in rust using part
 
 # Usage
 
-Configure the repository to use the nightly rust compiler:
+Configure the repository to use the nightly rust compiler (need to use a verison compatible with x86_64 features):
 
 ```
-rustup override set nightly
+rustup override set nightly-2025-06-20-x86_64-unknown-linux-gnu
+# Also should override it in the src folder, so your lsp works properly
+cd src
+rustup override set nightly-2025-06-20-x86_64-unknown-linux-gnu
 ```
 
 Install QEMU, this can be done using your package manager:

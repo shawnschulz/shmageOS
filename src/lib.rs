@@ -11,12 +11,14 @@ use core::panic::PanicInfo;
 pub mod serial;
 pub mod vga_buffer;
 pub mod interrupts;
+pub mod gdt;
 
 // Handles everything immediately after booting,
 // eventually may want to then have this load or link against
 // a threaded daemon that handles more complex launch and service
 // management logic
 pub fn init() {
+    gdt::init();
     interrupts::initialize_idt();
 }
 
