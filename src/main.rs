@@ -28,14 +28,8 @@ fn panic(info: &PanicInfo) -> ! {
 #[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
     shos::init();
-
-    fn overflow() {
-        overflow();
-    }
-    overflow();
-
     // invoke a breakpoint exception
-    shos::shfetch();
+//    shos::shfetch();
     // You can also panic at any point!
     //panic!("uh oh!");
     #[cfg(test)]
