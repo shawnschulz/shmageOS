@@ -34,5 +34,10 @@ pub extern "C" fn _start() -> ! {
     //panic!("uh oh!");
     #[cfg(test)]
     test_main();
-    loop{}
+    use shos::print;
+    loop{
+        print!("x");
+        for _ in 0..10000 {
+        }
+    }
 }
