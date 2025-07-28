@@ -14,7 +14,9 @@ use shos::println;
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    loop {
+        x86_64::instructions::hlt();
+    }
 }
 
 #[cfg(test)]
@@ -29,15 +31,13 @@ fn panic(info: &PanicInfo) -> ! {
 pub extern "C" fn _start() -> ! {
     shos::init();
     // invoke a breakpoint exception
-//    shos::shfetch();
+    shos::shfetch();
     // You can also panic at any point!
     //panic!("uh oh!");
     #[cfg(test)]
     test_main();
     use shos::print;
     loop{
-        print!("x");
-        for _ in 0..10000 {
-        }
+        x86_64::instructions::hlt();
     }
 }
