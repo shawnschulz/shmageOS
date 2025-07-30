@@ -8,6 +8,7 @@ mod serial;
 
 use core::panic::PanicInfo;
 use shos::println;
+use x86_64::registers::control::Cr3Flags;
 
 /// This function is called on panic.
 #[cfg(not(test))] // new attribute
@@ -30,8 +31,13 @@ fn panic(info: &PanicInfo) -> ! {
 #[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
     shos::init();
-    // invoke a breakpoint exception
+
     shos::shfetch();
+    use x86_64::registers::control::Cr3;
+    let (phys_frame, flags) = Cr3::read();
+    println!("Level 4 page table at: {:?}", phys_frame.start_address());
+    println!("Flags: {:?}", flags);
+    // invoke a breakpoint exception
     // You can also panic at any point!
     //panic!("uh oh!");
     #[cfg(test)]
