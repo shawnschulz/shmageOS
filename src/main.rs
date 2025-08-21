@@ -7,9 +7,9 @@
 mod serial;
 
 use core::panic::PanicInfo;
-use shos::println;
-use x86_64::registers::control::Cr3Flags;
-use::bootloader_api::{BootInfo, entry_point};
+use shos::{memory::translate_address, println};
+use x86_64::{registers::control::Cr3Flags, structures::paging::PageTable};
+use::bootloader::{BootInfo, entry_point};
 
 /// This function is called on panic.
 #[cfg(not(test))] // new attribute
@@ -21,27 +21,24 @@ fn panic(info: &PanicInfo) -> ! {
     }
 }
 
-fn kernel_main (boot_info: &'static mut BootInfo) -> ! {
-    use shos::memory::active_level_4_table;
+fn kernel_main (boot_info: &'static BootInfo) -> ! {
+    use shos::memory::translate_address;
     use x86_64::VirtAddr;
     shos::init();
     shos::shfetch();
-    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset.into_option().unwrap());
-    let l4_table = unsafe { active_level_4_table(phys_mem_offset) };
-
-    for (i, entry) in l4_table.iter().enumerate() {
-        if !entry.is_unused() {
-            println!("L4 entry: {}: {:?}", i, entry);
-            // get physical address from entry and convert
-            let physal_address = entry.frame().unwrap().start_address();
-            let virtual_address = physal_address.as_u64() + boot_info.physical_memory_offset.into_option().unwrap();
-            let mut virtual_ptr = VirtAddr::new(virtual_address).as_mut_ptr();
-        }
-    }
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let addresses = [
+        0xb8000,
+        0x201008,
+        0x0100_0020_1a10,
+        boot_info.physical_memory_offset,
+    ];
+    for &address in &addresses {
+        let virtual_address = VirtAddr::new(address);
+        let physical_address = unsafe{ translate_address(virtual_address, phys_mem_offset) } ;
+        println!("{:?} | {:?}", virtual_address, physical_address);
+    };
     use shos::print;
-    // invoke a breakpoint exception
-    // You can also panic at any point!
-    //panic!("uh oh!");
     #[cfg(test)]
     test_main();
     shos::hlt_loop();
