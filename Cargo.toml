@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Shawn Schulz <shawnschulz@gmail.com>"]
 edition = "2024"
 
+[lib]
+crate-type = ["staticlib", "rlib"]
+
 [dependencies]
 bootloader = {version = "0.9", features = ["map_physical_memory"]}
 #bootloader_api = {version = "0.11.11", features = ["map-physical-memory"]}

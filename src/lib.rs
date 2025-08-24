@@ -8,6 +8,10 @@
 #![feature(abi_x86_interrupt)]
 
 use core::panic::PanicInfo;
+use memory::translate_address;
+use x86_64::{registers::control::Cr3Flags, structures::paging::PageTable};
+use::bootloader::{BootInfo, entry_point};
+
 pub mod serial;
 pub mod vga_buffer;
 pub mod interrupts;
@@ -118,4 +122,52 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
         port.write(exit_code as u32);
     }
 }
+
+#[unsafe(no_mangle)]
+pub extern "C" fn abort() -> !{
+    loop {
+        // process waits for some interrupt indefinitely on abort
+        use core::arch::asm;
+        unsafe {asm!("wfi")};
+    }
+}
+
+// replacing the eh_personality C function name
+#[unsafe(no_mangle)]
+pub extern "C" fn eh_personality() {}
+
+/// This function is called on panic.
+#[cfg(not(test))] // new attribute
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info);
+    loop {
+        x86_64::instructions::hlt();
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn kernel_main (boot_info: &'static BootInfo) -> ! {
+    use memory::translate_address;
+    use x86_64::VirtAddr;
+    init();
+    shfetch();
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let addresses = [
+        0xb8000,
+        0x201008,
+        0x0100_0020_1a10,
+        boot_info.physical_memory_offset,
+    ];
+    for &address in &addresses {
+        let virtual_address = VirtAddr::new(address);
+        let physical_address = unsafe{ translate_address(virtual_address, phys_mem_offset) } ;
+        println!("{:?} | {:?}", virtual_address, physical_address);
+    };
+    #[cfg(test)]
+    test_main();
+    hlt_loop();
+}
+
+entry_point!(kernel_main);
 
