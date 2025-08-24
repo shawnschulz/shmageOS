@@ -128,7 +128,7 @@ pub extern "C" fn abort() -> !{
     loop {
         // process waits for some interrupt indefinitely on abort
         use core::arch::asm;
-        unsafe {asm!("wfi")};
+        unsafe {asm!("hlt")};
     }
 }
 
@@ -139,7 +139,7 @@ pub extern "C" fn eh_personality() {}
 /// This function is called on panic.
 #[cfg(not(test))] // new attribute
 #[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
+pub fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
     loop {
         x86_64::instructions::hlt();
@@ -168,6 +168,3 @@ pub extern "C" fn kernel_main (boot_info: &'static BootInfo) -> ! {
     test_main();
     hlt_loop();
 }
-
-entry_point!(kernel_main);
-
