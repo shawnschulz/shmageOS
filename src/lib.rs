@@ -147,24 +147,25 @@ pub fn panic(info: &PanicInfo) -> ! {
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn kernel_main (boot_info: &'static BootInfo) -> ! {
-    use memory::translate_address;
-    use x86_64::VirtAddr;
-    init();
+pub extern "C" fn kernel_main () -> ! {
     shfetch();
-    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
-    let addresses = [
-        0xb8000,
-        0x201008,
-        0x0100_0020_1a10,
-        boot_info.physical_memory_offset,
-    ];
-    for &address in &addresses {
-        let virtual_address = VirtAddr::new(address);
-        let physical_address = unsafe{ translate_address(virtual_address, phys_mem_offset) } ;
-        println!("{:?} | {:?}", virtual_address, physical_address);
-    };
-    #[cfg(test)]
-    test_main();
+ //   use memory::translate_address;
+ //   use x86_64::VirtAddr;
+ //   init();
+ //   shfetch();
+ //   let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+ //   let addresses = [
+ //       0xb8000,
+ //       0x201008,
+ //       0x0100_0020_1a10,
+ //       boot_info.physical_memory_offset,
+ //   ];
+ //   for &address in &addresses {
+ //       let virtual_address = VirtAddr::new(address);
+ //       let physical_address = unsafe{ translate_address(virtual_address, phys_mem_offset) } ;
+ //       println!("{:?} | {:?}", virtual_address, physical_address);
+ //   };
+ //   #[cfg(test)]
+ //   test_main();
     hlt_loop();
 }
