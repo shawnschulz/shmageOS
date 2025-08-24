@@ -102,6 +102,7 @@ fn panic(info: &PanicInfo) -> ! {
     test_panic_handler(info)
 }
 
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum QemuExitCode {
@@ -117,3 +118,4 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
         port.write(exit_code as u32);
     }
 }
+

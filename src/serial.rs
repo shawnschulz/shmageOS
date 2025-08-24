@@ -39,3 +39,9 @@ macro_rules! serial_println {
     ($fmt:expr, $($arg:tt)*) => ($crate::serial_print!(
         concat!($fmt, "\n"), $($arg)*));
 }
+
+#[test_case]
+fn test_fuzzed_serial() {
+    // Come back and make the fuzzed test later when you can alloc mem
+    serial_println!("hello world");
+}
